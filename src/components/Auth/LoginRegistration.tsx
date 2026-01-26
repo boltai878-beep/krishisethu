@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Phone, User, Building, Shield } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface LoginRegistrationProps {
   onLogin: (userType: 'farmer' | 'trader') => void;
 }
 
 const LoginRegistration: React.FC<LoginRegistrationProps> = ({ onLogin }) => {
+  const { t } = useLanguage();
   const [step, setStep] = useState<'phone' | 'otp' | 'role'>('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
@@ -40,15 +42,10 @@ const LoginRegistration: React.FC<LoginRegistrationProps> = ({ onLogin }) => {
             <Phone size={32} className="text-white" />
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            {step === 'phone' && 'Enter Mobile Number'}
-            {step === 'otp' && 'Verify OTP'}
-            {step === 'role' && 'Select Your Role'}
+            {step === 'phone' && t('auth.enterMobile')}
+            {step === 'otp' && t('auth.verifyOtp')}
+            {step === 'role' && t('auth.selectRole')}
           </h2>
-          <p className="text-gray-600">
-            {step === 'phone' && 'मोबाइल नंबर दर्ज करें / ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ'}
-            {step === 'otp' && 'OTP सत्यापित करें / OTP ಪರಿಶೀಲಿಸಿ'}
-            {step === 'role' && 'अपनी भूमिका चुनें / ನಿಮ್ಮ ಪಾತ್ರವನ್ನು ಆರಿಸಿ'}
-          </p>
         </div>
 
         {/* Phone Number Step */}
@@ -56,7 +53,7 @@ const LoginRegistration: React.FC<LoginRegistrationProps> = ({ onLogin }) => {
           <form onSubmit={handlePhoneSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mobile Number / मोबाइल नंबर / ಮೊಬೈಲ್ ಸಂಖ್ಯೆ
+                {t('auth.enterMobile')}
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-4 flex items-center">
@@ -82,7 +79,7 @@ const LoginRegistration: React.FC<LoginRegistrationProps> = ({ onLogin }) => {
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              Send OTP / OTP भेजें / OTP ಕಳುಹಿಸಿ
+              {t('auth.sendOtp')}
             </button>
           </form>
         )}
@@ -92,7 +89,7 @@ const LoginRegistration: React.FC<LoginRegistrationProps> = ({ onLogin }) => {
           <form onSubmit={handleOtpSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Enter 6-digit OTP / 6 अंकों का OTP दर्ज करें
+                {t('auth.verifyOtp')}
               </label>
               <p className="text-sm text-gray-500 mb-4">
                 Sent to +91 {phoneNumber}
@@ -116,14 +113,14 @@ const LoginRegistration: React.FC<LoginRegistrationProps> = ({ onLogin }) => {
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              Verify OTP / OTP सत्यापित करें / OTP ಪರಿಶೀಲಿಸಿ
+              {t('auth.verifyOtpBtn')}
             </button>
 
             <button
               type="button"
               className="w-full py-2 text-green-600 hover:text-green-700 font-medium"
             >
-              Resend OTP / OTP पुनः भेजें / OTP ಮರು ಕಳುಹಿಸಿ
+              {t('auth.resendOtp')}
             </button>
           </form>
         )}
@@ -145,9 +142,8 @@ const LoginRegistration: React.FC<LoginRegistrationProps> = ({ onLogin }) => {
                     <User size={24} className="text-green-600" />
                   </div>
                   <div className="text-left flex-1">
-                    <h3 className="text-lg font-semibold text-gray-800">I am a Farmer</h3>
-                    <p className="text-sm text-gray-600">मैं एक किसान हूं / ನಾನು ರೈತ</p>
-                    <p className="text-xs text-gray-500 mt-1">Sell your produce directly</p>
+                    <h3 className="text-lg font-semibold text-gray-800">{t('auth.farmer')}</h3>
+                    <p className="text-xs text-gray-500 mt-1">{t('auth.farmerDesc')}</p>
                   </div>
                   {selectedRole === 'farmer' && (
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
@@ -170,9 +166,8 @@ const LoginRegistration: React.FC<LoginRegistrationProps> = ({ onLogin }) => {
                     <Building size={24} className="text-blue-600" />
                   </div>
                   <div className="text-left flex-1">
-                    <h3 className="text-lg font-semibold text-gray-800">I am a Trader</h3>
-                    <p className="text-sm text-gray-600">मैं एक व्यापारी हूं / ನಾನು ವ್ಯಾಪಾರಿ</p>
-                    <p className="text-xs text-gray-500 mt-1">Buy produce from farmers</p>
+                    <h3 className="text-lg font-semibold text-gray-800">{t('auth.trader')}</h3>
+                    <p className="text-xs text-gray-500 mt-1">{t('auth.traderDesc')}</p>
                   </div>
                   {selectedRole === 'trader' && (
                     <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
@@ -204,7 +199,7 @@ const LoginRegistration: React.FC<LoginRegistrationProps> = ({ onLogin }) => {
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              Continue / जारी रखें / ಮುಂದುವರಿಸಿ
+              {t('common.continue')}
             </button>
           </div>
         )}

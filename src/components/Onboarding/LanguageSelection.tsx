@@ -1,17 +1,16 @@
 import React from 'react';
 import { Volume2, Check } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface LanguageSelectionProps {
-  selectedLanguage: string;
-  onLanguageSelect: (language: string) => void;
   onContinue: () => void;
 }
 
 const LanguageSelection: React.FC<LanguageSelectionProps> = ({
-  selectedLanguage,
-  onLanguageSelect,
   onContinue
 }) => {
+  const { language, setLanguage, t } = useLanguage();
+
   const languages = [
     {
       code: 'en',
@@ -41,8 +40,12 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
           <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mb-4 mx-auto">
             <span className="text-2xl text-white">🌐</span>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Choose Your Language</h2>
-          <p className="text-gray-600">अपनी भाषा चुनें / ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆರಿಸಿ</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('language.chooseLanguage')}</h2>
+          <p className="text-gray-600">
+            {language === 'en' && 'अपनी भाषा चुनें / ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆರಿಸಿ'}
+            {language === 'hi' && 'Choose Your Language / ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆರಿಸಿ'}
+            {language === 'kn' && 'Choose Your Language / अपनी भाषा चुनें'}
+          </p>
         </div>
 
         {/* Language Options */}
@@ -50,9 +53,9 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
           {languages.map((language) => (
             <button
               key={language.code}
-              onClick={() => onLanguageSelect(language.code)}
+              onClick={() => setLanguage(language.code as any)}
               className={`w-full p-4 rounded-xl border-2 transition-all duration-200 ${
-                selectedLanguage === language.code
+                language === language.code
                   ? 'border-green-500 bg-green-50 shadow-md'
                   : 'border-gray-200 bg-white hover:border-green-300'
               }`}
@@ -77,7 +80,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
                     <Volume2 size={20} className="text-gray-500" />
                   </button>
                   
-                  {selectedLanguage === language.code && (
+                  {language === language.code && (
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                       <Check size={16} className="text-white" />
                     </div>
@@ -93,8 +96,8 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
           <div className="flex items-center space-x-3">
             <Volume2 size={24} className="text-blue-600" />
             <div>
-              <p className="font-medium text-blue-800">Voice Assistance Available</p>
-              <p className="text-sm text-blue-600">Tap the speaker icon for audio help</p>
+              <p className="font-medium text-blue-800">{t('language.voiceAssistance')}</p>
+              <p className="text-sm text-blue-600">{t('language.tapSpeaker')}</p>
             </div>
           </div>
         </div>
@@ -102,14 +105,14 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
         {/* Continue Button */}
         <button
           onClick={onContinue}
-          disabled={!selectedLanguage}
+          disabled={!language}
           className={`w-full py-4 rounded-xl text-lg font-semibold transition-colors ${
-            selectedLanguage
+            language
               ? 'bg-green-600 text-white hover:bg-green-700 shadow-lg'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
         >
-          Continue / जारी रखें / ಮುಂದುವರಿಸಿ
+          {t('common.continue')} / {language === 'en' ? 'जारी रखें / ಮುಂದುವರಿಸಿ' : language === 'hi' ? 'Continue / ಮುಂದುವರಿಸಿ' : 'Continue / जारी रखें'}
         </button>
       </div>
     </div>

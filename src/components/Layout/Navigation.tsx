@@ -1,5 +1,6 @@
 import React from 'react';
 import { Home, TrendingUp, Plus, MessageCircle, User, Settings } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface NavigationProps {
   activeTab: string;
@@ -8,24 +9,26 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange, userType }) => {
+  const { t } = useLanguage();
+
   const farmerTabs = [
-    { id: 'dashboard', icon: Home, label: 'होम', labelEn: 'Home', labelKn: 'ಮನೆ' },
-    { id: 'market', icon: TrendingUp, label: 'बाज़ार', labelEn: 'Market', labelKn: 'ಮಾರುಕಟ್ಟೆ' },
-    { id: 'add', icon: Plus, label: 'बेचें', labelEn: 'Sell', labelKn: 'ಮಾರಾಟ' },
-    { id: 'chat', icon: MessageCircle, label: 'चैट', labelEn: 'Chat', labelKn: 'ಚಾಟ್' },
-    { id: 'profile', icon: User, label: 'प्रोफ़ाइल', labelEn: 'Profile', labelKn: 'ಪ್ರೊಫೈಲ್' },
+    { id: 'dashboard', icon: Home, labelKey: 'nav.home' },
+    { id: 'market', icon: TrendingUp, labelKey: 'nav.market' },
+    { id: 'add', icon: Plus, labelKey: 'nav.sell' },
+    { id: 'chat', icon: MessageCircle, labelKey: 'nav.chat' },
+    { id: 'profile', icon: User, labelKey: 'nav.profile' },
   ];
 
   const traderTabs = [
-    { id: 'dashboard', icon: Home, label: 'होम', labelEn: 'Home', labelKn: 'ಮನೆ' },
-    { id: 'browse', icon: TrendingUp, label: 'खरीदें', labelEn: 'Buy', labelKn: 'ಖರೀದಿ' },
-    { id: 'chat', icon: MessageCircle, label: 'चैट', labelEn: 'Chat', labelKn: 'ಚಾಟ್' },
-    { id: 'profile', icon: User, label: 'प्रोफ़ाइल', labelEn: 'Profile', labelKn: 'ಪ್ರೊಫೈಲ್' },
+    { id: 'dashboard', icon: Home, labelKey: 'nav.home' },
+    { id: 'browse', icon: TrendingUp, labelKey: 'nav.buy' },
+    { id: 'chat', icon: MessageCircle, labelKey: 'nav.chat' },
+    { id: 'profile', icon: User, labelKey: 'nav.profile' },
   ];
 
   const adminTabs = [
-    { id: 'dashboard', icon: Home, label: 'Dashboard', labelEn: 'Dashboard', labelKn: 'Dashboard' },
-    { id: 'verification', icon: Settings, label: 'Verify', labelEn: 'Verify', labelKn: 'Verify' },
+    { id: 'dashboard', icon: Home, labelKey: 'nav.home' },
+    { id: 'verification', icon: Settings, labelKey: 'nav.profile' },
   ];
 
   const tabs = userType === 'farmer' ? farmerTabs : userType === 'trader' ? traderTabs : adminTabs;
@@ -48,7 +51,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange, userTyp
               }`}
             >
               <Icon size={24} />
-              <span className="text-xs mt-1 font-medium">{tab.labelEn}</span>
+              <span className="text-xs mt-1 font-medium">{t(tab.labelKey)}</span>
             </button>
           );
         })}
