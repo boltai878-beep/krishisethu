@@ -34,6 +34,7 @@ export const mockProduce: Produce[] = [
     location: 'Khadakwasla, Pune',
     harvestDate: '2024-03-15',
     status: 'active',
+    verified: true,
     bids: [
       {
         id: 'b1',
@@ -61,6 +62,7 @@ export const mockProduce: Produce[] = [
     location: 'Khadakwasla, Pune',
     harvestDate: '2024-03-10',
     status: 'active',
+    verified: false,
     bids: []
   }
 ];

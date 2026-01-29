@@ -23,6 +23,7 @@ export interface Produce {
   harvestDate: string;
   status: 'active' | 'bidding' | 'sold' | 'expired';
   bids: Bid[];
+  verified?: boolean;
 }
 
 export interface Bid {
