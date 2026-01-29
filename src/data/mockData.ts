@@ -3,7 +3,7 @@ import { User, Produce, MarketPrice, Transaction, GovernmentScheme, Message } fr
 export const mockUsers: User[] = [
   {
     id: '1',
-    name: 'राम कुमार',
+    name: 'Ram Kumar',
     phone: '+91-9876543210',
     type: 'farmer',
     location: 'Khadakwasla, Pune',
@@ -11,7 +11,7 @@ export const mockUsers: User[] = [
   },
   {
     id: '2',
-    name: 'श्याम व्यापारी',
+    name: 'Shyam Trader',
     phone: '+91-9876543211',
     type: 'trader',
     location: 'APMC Market, Pune',
@@ -23,14 +23,14 @@ export const mockProduce: Produce[] = [
   {
     id: '1',
     farmerId: '1',
-    name: 'गेहूं (Wheat)',
+    name: 'Wheat',
     variety: 'HD-2967',
     quantity: 100,
     unit: 'quintal',
     basePrice: 2200,
     currentPrice: 2200,
     images: ['https://images.pexels.com/photos/1656663/pexels-photo-1656663.jpeg'],
-    description: 'उच्च गुणवत्ता वाला गेहूं, अच्छी तरह से साफ किया गया',
+    description: 'High quality wheat, well cleaned and sorted',
     location: 'Khadakwasla, Pune',
     harvestDate: '2024-03-15',
     status: 'active',
@@ -38,10 +38,10 @@ export const mockProduce: Produce[] = [
       {
         id: 'b1',
         traderId: '2',
-        traderName: 'श्याम व्यापारी',
+        traderName: 'Shyam Trader',
         amount: 2300,
         quantity: 50,
-        message: 'अच्छी गुणवत्ता के लिए प्रीमियम मूल्य',
+        message: 'Premium price for good quality',
         timestamp: new Date().toISOString(),
         status: 'pending'
       }
@@ -50,14 +50,14 @@ export const mockProduce: Produce[] = [
   {
     id: '2',
     farmerId: '1',
-    name: 'धान (Rice)',
+    name: 'Rice',
     variety: 'IR-64',
     quantity: 75,
     unit: 'quintal',
     basePrice: 1800,
     currentPrice: 1950,
     images: ['https://images.pexels.com/photos/1300972/pexels-photo-1300972.jpeg'],
-    description: 'बासमती चावल, लंबे दाने',
+    description: 'Basmati rice, long grain variety',
     location: 'Khadakwasla, Pune',
     harvestDate: '2024-03-10',
     status: 'active',
@@ -68,7 +68,7 @@ export const mockProduce: Produce[] = [
 export const mockMarketPrices: MarketPrice[] = [
   {
     id: '1',
-    produce: 'गेहूं (Wheat)',
+    produce: 'Wheat',
     mandi: 'Pune APMC',
     price: 2250,
     change: 50,
@@ -77,7 +77,7 @@ export const mockMarketPrices: MarketPrice[] = [
   },
   {
     id: '2',
-    produce: 'धान (Rice)',
+    produce: 'Rice',
     mandi: 'Pune APMC',
     price: 1900,
     change: -25,
@@ -86,7 +86,7 @@ export const mockMarketPrices: MarketPrice[] = [
   },
   {
     id: '3',
-    produce: 'मक्का (Maize)',
+    produce: 'Maize',
     mandi: 'Mumbai APMC',
     price: 1650,
     change: 0,
@@ -95,11 +95,83 @@ export const mockMarketPrices: MarketPrice[] = [
   },
   {
     id: '4',
-    produce: 'आलू (Potato)',
+    produce: 'Potato',
     mandi: 'Delhi APMC',
     price: 800,
     change: 75,
     trend: 'up',
+    lastUpdated: new Date().toISOString()
+  },
+  {
+    id: '5',
+    produce: 'Wheat',
+    mandi: 'Baramati APMC',
+    price: 2180,
+    change: 30,
+    trend: 'up',
+    lastUpdated: new Date().toISOString()
+  },
+  {
+    id: '6',
+    produce: 'Wheat',
+    mandi: 'Nashik APMC',
+    price: 2320,
+    change: 80,
+    trend: 'up',
+    lastUpdated: new Date().toISOString()
+  },
+  {
+    id: '7',
+    produce: 'Rice',
+    mandi: 'Baramati APMC',
+    price: 1850,
+    change: -50,
+    trend: 'down',
+    lastUpdated: new Date().toISOString()
+  },
+  {
+    id: '8',
+    produce: 'Rice',
+    mandi: 'Mumbai APMC',
+    price: 1950,
+    change: 25,
+    trend: 'up',
+    lastUpdated: new Date().toISOString()
+  },
+  {
+    id: '9',
+    produce: 'Onion',
+    mandi: 'Pune APMC',
+    price: 1200,
+    change: 150,
+    trend: 'up',
+    lastUpdated: new Date().toISOString()
+  },
+  {
+    id: '10',
+    produce: 'Onion',
+    mandi: 'Nashik APMC',
+    price: 1100,
+    change: 100,
+    trend: 'up',
+    lastUpdated: new Date().toISOString()
+  },
+  {
+    id: '11',
+    produce: 'Tomato',
+    mandi: 'Pune APMC',
+    price: 2500,
+    change: -200,
+    trend: 'down',
+    lastUpdated: new Date().toISOString()
+  },
+  {
+    id: '12',
+    produce: 'Tomato',
+    mandi: 'Mumbai APMC',
+    price: 2800,
+    change: -100,
+    trend: 'down',
     lastUpdated: new Date().toISOString()
   }
 ];
@@ -116,15 +188,15 @@ export const mockTransactions: Transaction[] = [
     timeline: [
       {
         id: 't1',
-        title: 'बोली स्वीकार की गई',
-        description: 'किसान ने आपकी बोली स्वीकार की',
+        title: 'Bid Accepted',
+        description: 'Farmer has accepted your bid',
         timestamp: new Date().toISOString(),
         completed: true
       },
       {
         id: 't2',
-        title: 'भुगतान पुष्टि',
-        description: 'भुगतान प्रक्रिया में है',
+        title: 'Payment Confirmation',
+        description: 'Payment process is underway',
         timestamp: '',
         completed: false
       }
@@ -135,29 +207,29 @@ export const mockTransactions: Transaction[] = [
 export const mockGovernmentSchemes: GovernmentScheme[] = [
   {
     id: '1',
-    title: 'प्रधानमंत्री किसान सम्मान निधि',
-    description: 'भारत सरकार की एक केंद्रीय क्षेत्रक योजना है जो छोटे और सीमांत किसानों को आय सहायता प्रदान करती है।',
+    title: 'PM Kisan Samman Nidhi',
+    description: 'A central sector scheme by Government of India that provides income support to small and marginal farmers.',
     category: 'subsidy',
     eligibility: [
-      '2 हेक्टेयर तक की खेती योग्य भूमि',
-      'भारतीय नागरिक होना आवश्यक',
-      'आधार कार्ड और बैंक खाता आवश्यक'
+      'Cultivable land up to 2 hectares',
+      'Must be an Indian citizen',
+      'Aadhaar card and bank account required'
     ],
-    benefits: 'प्रति वर्ष ₹6,000 की राशि तीन किस्तों में',
+    benefits: '₹6,000 per year in three installments',
     applicationLink: 'https://pmkisan.gov.in',
     image: 'https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg'
   },
   {
     id: '2',
-    title: 'फसल बीमा योजना',
-    description: 'प्राकृतिक आपदाओं से होने वाले नुकसान के खिलाफ किसानों को बीमा कवर प्रदान करती है।',
+    title: 'Crop Insurance Scheme',
+    description: 'Provides insurance cover to farmers against losses due to natural calamities.',
     category: 'insurance',
     eligibility: [
-      'सभी किसान पात्र हैं',
-      'अधिसूचित फसलों के लिए',
-      'निर्धारित समय सीमा के भीतर आवेदन'
+      'All farmers are eligible',
+      'For notified crops only',
+      'Application within specified time limit'
     ],
-    benefits: 'फसल के नुकसान पर बीमा राशि का भुगतान',
+    benefits: 'Insurance amount payment on crop loss',
     applicationLink: 'https://pmfby.gov.in',
     image: 'https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg'
   }
@@ -168,7 +240,7 @@ export const mockMessages: Message[] = [
     id: '1',
     senderId: '2',
     receiverId: '1',
-    content: 'नमस्ते, आपका गेहूं कैसा है?',
+    content: 'Hello, how is your wheat quality?',
     timestamp: new Date(Date.now() - 3600000).toISOString(),
     read: true
   },
@@ -176,7 +248,7 @@ export const mockMessages: Message[] = [
     id: '2',
     senderId: '1',
     receiverId: '2',
-    content: 'बहुत अच्छा गेहूं है, क्या आप देखना चाहते हैं?',
+    content: 'Very good wheat quality, would you like to see it?',
     timestamp: new Date(Date.now() - 3000000).toISOString(),
     read: true
   },
@@ -184,7 +256,7 @@ export const mockMessages: Message[] = [
     id: '3',
     senderId: '2',
     receiverId: '1',
-    content: 'हाँ, कल आऊंगा देखने।',
+    content: 'Yes, I will come tomorrow to see it.',
     timestamp: new Date(Date.now() - 1800000).toISOString(),
     read: false
   }
