@@ -57,9 +57,9 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
       <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold mb-1">नमस्ते किसान भाई!</h2>
+            <h2 className="text-xl font-bold mb-1">Welcome Farmer!</h2>
             <p className="text-green-100 text-sm">Welcome Farmer!</p>
-            <p className="text-green-200 text-xs mt-1">आज का दिन शुभ हो</p>
+            <p className="text-green-200 text-xs mt-1">Have a great day!</p>
           </div>
           <div className="relative">
             <Bell size={24} />
@@ -78,8 +78,7 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-2xl font-bold text-green-600">{activeProduces.length}</p>
-              <p className="text-sm text-gray-600 font-medium">सक्रिय उत्पाद</p>
-              <p className="text-xs text-gray-500">Active Products</p>
+              <p className="text-sm text-gray-600 font-medium">Active Products</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <Package className="text-green-600" size={24} />
@@ -91,8 +90,7 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-2xl font-bold text-orange-600">{totalBids}</p>
-              <p className="text-sm text-gray-600 font-medium">नई बोलियां</p>
-              <p className="text-xs text-gray-500">New Bids</p>
+              <p className="text-sm text-gray-600 font-medium">New Bids</p>
             </div>
             <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
               <TrendingUp className="text-orange-600" size={24} />
@@ -103,7 +101,7 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
 
       {/* Quick Actions */}
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold text-gray-800">त्वरित कार्य / Quick Actions</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Quick Actions</h3>
         
         <div className="grid grid-cols-1 gap-3">
           <button
@@ -115,7 +113,7 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
                 <Plus size={24} />
               </div>
               <div className="text-left flex-1">
-                <p className="font-semibold text-lg">फसल बेचें</p>
+                <p className="font-semibold text-lg">Sell Produce</p>
                 <p className="text-green-100 text-sm">Add Produce to Sell</p>
               </div>
             </div>
@@ -130,8 +128,8 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <Eye size={24} className="text-blue-600" />
                 </div>
-                <p className="font-semibold text-gray-800">मंडी भाव</p>
-                <p className="text-xs text-gray-500">View Prices</p>
+                <p className="font-semibold text-gray-800">Market Prices</p>
+                <p className="text-xs text-gray-500">View Current Rates</p>
               </div>
             </button>
 
@@ -143,7 +141,7 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <Gift size={24} className="text-purple-600" />
                 </div>
-                <p className="font-semibold text-gray-800">योजनाएं</p>
+                <p className="font-semibold text-gray-800">Schemes</p>
                 <p className="text-xs text-gray-500">Schemes</p>
               </div>
             </button>
@@ -169,14 +167,14 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-gray-800">आज के बाज़ार भाव</h3>
+              <h3 className="text-lg font-semibold text-gray-800">Today's Market Prices</h3>
               <p className="text-sm text-gray-600">Today's Market Prices</p>
             </div>
             <button
               onClick={onViewPrices}
               className="text-green-600 text-sm font-medium hover:text-green-700"
             >
-              सभी देखें
+              View All
             </button>
           </div>
         </div>
@@ -206,7 +204,7 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
       {/* My Listed Produce */}
       <div className="bg-white rounded-xl shadow-md border border-gray-100">
         <div className="p-4 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-800">मेरी सूचीबद्ध फसलें</h3>
+          <h3 className="text-lg font-semibold text-gray-800">My Listed Produce</h3>
           <p className="text-sm text-gray-600">My Listed Produce</p>
         </div>
         
@@ -214,13 +212,13 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
           {activeProduces.length === 0 ? (
             <div className="text-center py-8">
               <Package size={48} className="mx-auto text-gray-400 mb-3" />
-              <p className="text-gray-500 font-medium">कोई फसल सूचीबद्ध नहीं</p>
+              <p className="text-gray-500 font-medium">No produce listed</p>
               <p className="text-sm text-gray-400 mb-4">No produce listed yet</p>
               <button
                 onClick={onAddProduce}
                 className="bg-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors"
               >
-                पहली फसल जोड़ें
+                Add First Produce
               </button>
             </div>
           ) : (
@@ -261,13 +259,13 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
               <Clock size={20} className="text-yellow-600" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-yellow-800">भुगतान लंबित</p>
+              <p className="font-medium text-yellow-800">Payment Pending</p>
               <p className="text-sm text-yellow-700">
-                {pendingPayments} payments pending / {pendingPayments} भुगतान लंबित
+                {pendingPayments} payments pending
               </p>
             </div>
             <button className="text-yellow-700 font-medium text-sm hover:text-yellow-800">
-              देखें
+              View
             </button>
           </div>
         </div>

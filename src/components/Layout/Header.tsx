@@ -18,6 +18,7 @@ const Header: React.FC<HeaderProps> = ({ userName, location, unreadCount = 0 }) 
           <h1 className="text-xl font-bold">
             {t('dashboard.welcome').includes('Farmer') ? t('dashboard.welcome') : t('dashboard.welcomeTrader')}, {userName}
           </h1>
+          <h1 className="text-xl font-bold">Hello, {userName}</h1>
           <div className="flex items-center mt-1">
             <MapPin size={16} className="mr-1" />
             <span className="text-sm opacity-90">{location}</span>

@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
-import { Camera, MapPin, Calendar, Package, ArrowLeft, Check } from 'lucide-react';
+import { Camera, MapPin, Calendar, Package, ArrowLeft, Check, Upload, X } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 interface EnhancedAddProduceProps {
   onSubmit: (produceData: any) => void;
   onBack: () => void;
+  farmerId: string;
 }
 
-const EnhancedAddProduce: React.FC<EnhancedAddProduceProps> = ({ onSubmit, onBack }) => {
-  const [step, setStep] = useState(1);
+const EnhancedAddProduce: React.FC<EnhancedAddProduceProps> = ({ onSubmit, onBack, farmerId }) => {
   const [formData, setFormData] = useState({
     name: '',
     variety: '',
     quantity: '',
-    unit: 'quintal',
-    basePrice: '',
+    unit: 'quintal' as 'kg' | 'quintal' | 'ton',
+    expectedPrice: '',
     description: '',
     harvestDate: '',
     location: '',
@@ -21,18 +22,46 @@ const EnhancedAddProduce: React.FC<EnhancedAddProduceProps> = ({ onSubmit, onBac
   });
 
   const [imagePreview, setImagePreview] = useState<string[]>([]);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // Comprehensive crop list with categories
   const crops = [
     { value: 'गेहूं (Wheat)', label: '🌾 गेहूं (Wheat)', category: 'grain' },
     { value: 'धान (Rice)', label: '🌾 धान (Rice)', category: 'grain' },
     { value: 'मक्का (Maize)', label: '🌽 मक्का (Maize)', category: 'grain' },
     { value: 'बाजरा (Pearl Millet)', label: '🌾 बाजरा (Pearl Millet)', category: 'grain' },
+    { value: 'ज्वार (Sorghum)', label: '🌾 ज्वार (Sorghum)', category: 'grain' },
+    { value: 'जौ (Barley)', label: '🌾 जौ (Barley)', category: 'grain' },
     { value: 'सरसों (Mustard)', label: '🌻 सरसों (Mustard)', category: 'oilseed' },
+    { value: 'सूरजमुखी (Sunflower)', label: '🌻 सूरजमुखी (Sunflower)', category: 'oilseed' },
+    { value: 'तिल (Sesame)', label: '🌱 तिल (Sesame)', category: 'oilseed' },
     { value: 'चना (Chickpea)', label: '🫘 चना (Chickpea)', category: 'pulse' },
     { value: 'अरहर (Pigeon Pea)', label: '🫘 अरहर (Pigeon Pea)', category: 'pulse' },
+    { value: 'मसूर (Lentil)', label: '🫘 मसूर (Lentil)', category: 'pulse' },
+    { value: 'राजमा (Kidney Bean)', label: '🫘 राजमा (Kidney Bean)', category: 'pulse' },
     { value: 'आलू (Potato)', label: '🥔 आलू (Potato)', category: 'vegetable' },
     { value: 'प्याज (Onion)', label: '🧅 प्याज (Onion)', category: 'vegetable' },
     { value: 'टमाटर (Tomato)', label: '🍅 टमाटर (Tomato)', category: 'vegetable' },
+    { value: 'मिर्च (Chili)', label: '🌶️ मिर्च (Chili)', category: 'vegetable' },
+    { value: 'बैंगन (Brinjal)', label: '🍆 बैंगन (Brinjal)', category: 'vegetable' },
+    { value: 'भिंडी (Okra)', label: '🥒 भिंडी (Okra)', category: 'vegetable' },
+    { value: 'गोभी (Cauliflower)', label: '🥬 गोभी (Cauliflower)', category: 'vegetable' },
+    { value: 'पत्ता गोभी (Cabbage)', label: '🥬 पत्ता गोभी (Cabbage)', category: 'vegetable' },
+    { value: 'गाजर (Carrot)', label: '🥕 गाजर (Carrot)', category: 'vegetable' },
+    { value: 'मूली (Radish)', label: '🥕 मूली (Radish)', category: 'vegetable' },
+    { value: 'खीरा (Cucumber)', label: '🥒 खीरा (Cucumber)', category: 'vegetable' },
+    { value: 'लौकी (Bottle Gourd)', label: '🥒 लौकी (Bottle Gourd)', category: 'vegetable' },
+    { value: 'कद्दू (Pumpkin)', label: '🎃 कद्दू (Pumpkin)', category: 'vegetable' },
+    { value: 'आम (Mango)', label: '🥭 आम (Mango)', category: 'fruit' },
+    { value: 'केला (Banana)', label: '🍌 केला (Banana)', category: 'fruit' },
+    { value: 'अंगूर (Grapes)', label: '🍇 अंगूर (Grapes)', category: 'fruit' },
+    { value: 'संतरा (Orange)', label: '🍊 संतरा (Orange)', category: 'fruit' },
+    { value: 'नींबू (Lemon)', label: '🍋 नींबू (Lemon)', category: 'fruit' },
+    { value: 'अनार (Pomegranate)', label: '🍎 अनार (Pomegranate)', category: 'fruit' },
+    { value: 'पपीता (Papaya)', label: '🥭 पपीता (Papaya)', category: 'fruit' },
+    { value: 'अमरूद (Guava)', label: '🍐 अमरूद (Guava)', category: 'fruit' }
   ];
 
   const units = [
@@ -41,45 +70,95 @@ const EnhancedAddProduce: React.FC<EnhancedAddProduceProps> = ({ onSubmit, onBac
     { value: 'ton', label: 'टन (Ton)', icon: '🚛' }
   ];
 
-  const handleImageCapture = () => {
-    const dummyImages = [
+  const handleImageUpload = () => {
+    // Simulate image upload with multiple sample images
+    const sampleImages = [
       'https://images.pexels.com/photos/1656663/pexels-photo-1656663.jpeg',
-      'https://images.pexels.com/photos/1300972/pexels-photo-1300972.jpeg'
+      'https://images.pexels.com/photos/1300972/pexels-photo-1300972.jpeg',
+      'https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg'
     ];
-    setImagePreview(dummyImages);
-    setFormData({ ...formData, images: dummyImages });
-  };
-
-  const detectLocation = () => {
-    setFormData({ ...formData, location: 'Khadakwasla, Pune, Maharashtra' });
-  };
-
-  const handleNext = () => {
-    if (step < 4) setStep(step + 1);
-  };
-
-  const handlePrevious = () => {
-    if (step > 1) setStep(step - 1);
-  };
-
-  const handleSubmit = () => {
-    onSubmit({
-      ...formData,
-      quantity: parseFloat(formData.quantity),
-      basePrice: parseFloat(formData.basePrice),
-      status: 'active',
-      bids: []
+    
+    // Add new images to existing ones (max 5 images)
+    const newImages = [...imagePreview];
+    sampleImages.forEach(img => {
+      if (newImages.length < 5 && !newImages.includes(img)) {
+        newImages.push(img);
+      }
     });
+    
+    setImagePreview(newImages);
+    setFormData({ ...formData, images: newImages });
   };
 
-  const isStepValid = () => {
-    switch (step) {
-      case 1: return formData.name && formData.quantity && formData.unit;
-      case 2: return formData.basePrice;
-      case 3: return formData.location;
-      case 4: return true;
-      default: return false;
+  const removeImage = (index: number) => {
+    const newImages = imagePreview.filter((_, i) => i !== index);
+    setImagePreview(newImages);
+    setFormData({ ...formData, images: newImages });
+  };
+
+  const detectLocation = async () => {
+    setIsDetectingLocation(true);
+    
+    // Simulate location detection with a delay
+    setTimeout(() => {
+      const locations = [
+        'Khadakwasla, Pune, Maharashtra',
+        'Baramati, Pune, Maharashtra',
+        'Nashik, Maharashtra',
+        'Aurangabad, Maharashtra',
+        'Solapur, Maharashtra'
+      ];
+      
+      const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+      setFormData({ ...formData, location: randomLocation });
+      setIsDetectingLocation(false);
+    }, 2000);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.quantity || !formData.expectedPrice || !formData.location) {
+      setError('कृपया सभी आवश्यक फ़ील्ड भरें / Please fill all required fields');
+      return;
     }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const { data, error: insertError } = await supabase
+        .from('produces')
+        .insert({
+          farmer_id: farmerId,
+          name: formData.name,
+          variety: formData.variety || null,
+          quantity: parseFloat(formData.quantity),
+          unit: formData.unit,
+          base_price: parseFloat(formData.expectedPrice),
+          current_price: parseFloat(formData.expectedPrice),
+          images: formData.images,
+          description: formData.description || null,
+          location: formData.location,
+          harvest_date: formData.harvestDate || null,
+          status: 'active'
+        })
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
+      onSubmit(data);
+    } catch (err) {
+      console.error('Error adding produce:', err);
+      setError('फसल जोड़ने में त्रुटि / Error adding produce. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isFormValid = () => {
+    return formData.name && formData.quantity && formData.expectedPrice && formData.location;
   };
 
   return (
@@ -95,291 +174,284 @@ const EnhancedAddProduce: React.FC<EnhancedAddProduceProps> = ({ onSubmit, onBac
             <p className="text-sm text-gray-600">Add Produce to Sell</p>
           </div>
         </div>
-        
-        {/* Progress Bar */}
-        <div className="flex items-center mt-4 space-x-2">
-          {[1, 2, 3, 4].map((stepNum) => (
-            <div key={stepNum} className="flex items-center flex-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                stepNum <= step 
-                  ? 'bg-green-600 text-white' 
-                  : 'bg-gray-200 text-gray-500'
-              }`}>
-                {stepNum < step ? <Check size={16} /> : stepNum}
-              </div>
-              {stepNum < 4 && (
-                <div className={`flex-1 h-1 mx-2 ${
-                  stepNum < step ? 'bg-green-600' : 'bg-gray-200'
-                }`} />
-              )}
-            </div>
-          ))}
-        </div>
       </div>
 
-      <div className="p-4 space-y-6">
-        {/* Step 1: Crop Details */}
-        {step === 1 && (
-          <div className="space-y-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Package size={32} className="text-green-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-800">फसल का विवरण</h2>
-              <p className="text-gray-600">Crop Details</p>
-            </div>
+      <form onSubmit={handleSubmit} className="p-4 space-y-6">
+        {/* Crop Name Dropdown */}
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            फसल का नाम / Crop Name *
+          </label>
+          <select
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full p-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            required
+          >
+            <option value="">फसल चुनें / Select Crop</option>
+            <optgroup label="🌾 अनाज / Grains">
+              {crops.filter(crop => crop.category === 'grain').map((crop) => (
+                <option key={crop.value} value={crop.value}>{crop.label}</option>
+              ))}
+            </optgroup>
+            <optgroup label="🌻 तिलहन / Oilseeds">
+              {crops.filter(crop => crop.category === 'oilseed').map((crop) => (
+                <option key={crop.value} value={crop.value}>{crop.label}</option>
+              ))}
+            </optgroup>
+            <optgroup label="🫘 दालें / Pulses">
+              {crops.filter(crop => crop.category === 'pulse').map((crop) => (
+                <option key={crop.value} value={crop.value}>{crop.label}</option>
+              ))}
+            </optgroup>
+            <optgroup label="🥬 सब्जियां / Vegetables">
+              {crops.filter(crop => crop.category === 'vegetable').map((crop) => (
+                <option key={crop.value} value={crop.value}>{crop.label}</option>
+              ))}
+            </optgroup>
+            <optgroup label="🍎 फल / Fruits">
+              {crops.filter(crop => crop.category === 'fruit').map((crop) => (
+                <option key={crop.value} value={crop.value}>{crop.label}</option>
+              ))}
+            </optgroup>
+          </select>
+        </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-md space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  फसल का नाम / Crop Name *
-                </label>
-                <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto">
-                  {crops.map((crop) => (
-                    <button
-                      key={crop.value}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, name: crop.value })}
-                      className={`p-3 text-left rounded-lg border transition-colors ${
-                        formData.name === crop.value
-                          ? 'border-green-500 bg-green-50 text-green-800'
-                          : 'border-gray-200 hover:border-green-300'
-                      }`}
-                    >
-                      {crop.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  मात्रा / Quantity *
-                </label>
-                <div className="flex space-x-3">
-                  <input
-                    type="number"
-                    value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                    placeholder="0"
-                    className="flex-1 p-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    required
-                  />
-                  <select
-                    value={formData.unit}
-                    onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                    className="p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    {units.map((unit) => (
-                      <option key={unit.value} value={unit.value}>
-                        {unit.icon} {unit.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  किस्म / Variety (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={formData.variety}
-                  onChange={(e) => setFormData({ ...formData, variety: e.target.value })}
-                  placeholder="जैसे: HD-2967, PB-1509"
-                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-              </div>
-            </div>
+        {/* Variety (Optional) */}
+        {formData.name && (
+          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              किस्म / Variety (Optional)
+            </label>
+            <input
+              type="text"
+              value={formData.variety}
+              onChange={(e) => setFormData({ ...formData, variety: e.target.value })}
+              placeholder="जैसे: HD-2967, PB-1509, Basmati"
+              className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
           </div>
         )}
 
-        {/* Step 2: Pricing */}
-        {step === 2 && (
-          <div className="space-y-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">💰</span>
-              </div>
-              <h2 className="text-xl font-bold text-gray-800">कीमत निर्धारण</h2>
-              <p className="text-gray-600">Set Your Price</p>
-            </div>
+        {/* Quantity */}
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            मात्रा / Quantity *
+          </label>
+          <div className="flex space-x-3">
+            <input
+              type="number"
+              value={formData.quantity}
+              onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+              placeholder="0"
+              className="flex-1 p-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              required
+              min="0.1"
+              step="0.1"
+            />
+            <select
+              value={formData.unit}
+              onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+              className="p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              {units.map((unit) => (
+                <option key={unit.value} value={unit.value}>
+                  {unit.icon} {unit.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">उपलब्ध मात्रा दर्ज करें</p>
+        </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-md space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  न्यूनतम कीमत / Minimum Price *
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-4 text-gray-500 text-lg">₹</span>
-                  <input
-                    type="number"
-                    value={formData.basePrice}
-                    onChange={(e) => setFormData({ ...formData, basePrice: e.target.value })}
-                    placeholder="0"
-                    className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    required
-                  />
+        {/* Expected Price */}
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            अपेक्षित कीमत / Expected Price *
+          </label>
+          <div className="relative">
+            <span className="absolute left-4 top-4 text-gray-500 text-lg">₹</span>
+            <input
+              type="number"
+              value={formData.expectedPrice}
+              onChange={(e) => setFormData({ ...formData, expectedPrice: e.target.value })}
+              placeholder="0"
+              className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              required
+              min="1"
+              step="1"
+            />
+          </div>
+          <p className="text-sm text-gray-500 mt-2">प्रति {formData.unit} की कीमत / Price per {formData.unit}</p>
+          
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <h4 className="font-medium text-blue-800 mb-1">💡 मूल्य निर्धारण सुझाव</h4>
+            <p className="text-sm text-blue-700">
+              बाज़ार भाव देखकर प्रतिस्पर्धी कीमत रखें। अच्छी गुणवत्ता के लिए 5-10% अधिक कीमत रख सकते हैं।
+            </p>
+          </div>
+        </div>
+
+        {/* Upload Produce Images */}
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            फसल की तस्वीरें / Produce Images
+          </label>
+          
+          <div className="space-y-4">
+            <button
+              type="button"
+              onClick={handleImageUpload}
+              className="w-full p-6 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-green-500 transition-colors group"
+            >
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-gray-100 group-hover:bg-green-100 rounded-full flex items-center justify-center mb-3 transition-colors">
+                  <Upload size={24} className="text-gray-400 group-hover:text-green-600 transition-colors" />
                 </div>
-                <p className="text-sm text-gray-500 mt-2">प्रति {formData.unit} की कीमत</p>
+                <p className="text-sm text-gray-600 font-medium mb-1">तस्वीर अपलोड करें / Upload Images</p>
+                <p className="text-xs text-gray-500">अच्छी गुणवत्ता की तस्वीरें लें (अधिकतम 5)</p>
               </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-medium text-blue-800 mb-2">💡 मूल्य निर्धारण सुझाव</h4>
-                <p className="text-sm text-blue-700">
-                  बाज़ार भाव देखकर प्रतिस्पर्धी कीमत रखें। अच्छी गुणवत्ता के लिए 5-10% अधिक कीमत रख सकते हैं।
+            </button>
+            
+            {imagePreview.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-3">
+                  अपलोड की गई तस्वीरें ({imagePreview.length}/5)
                 </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Location & Images */}
-        {step === 3 && (
-          <div className="space-y-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MapPin size={32} className="text-green-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-800">स्थान और तस्वीरें</h2>
-              <p className="text-gray-600">Location & Images</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-md space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  स्थान / Location *
-                </label>
-                <div className="flex space-x-3">
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    placeholder="गांव, तहसील, जिला"
-                    className="flex-1 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={detectLocation}
-                    className="px-4 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                    <MapPin size={20} />
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  फसल की तस्वीर / Crop Images
-                </label>
-                
-                <button
-                  type="button"
-                  onClick={handleImageCapture}
-                  className="w-full p-6 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-green-500 transition-colors"
-                >
-                  <Camera size={32} className="mx-auto text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-600 font-medium">तस्वीर लें / Take Photo</p>
-                  <p className="text-xs text-gray-500 mt-1">अच्छी गुणवत्ता की तस्वीर लें</p>
-                </button>
-                
-                {imagePreview.length > 0 && (
-                  <div className="grid grid-cols-2 gap-3 mt-4">
-                    {imagePreview.map((img, index) => (
+                <div className="grid grid-cols-2 gap-3">
+                  {imagePreview.map((img, index) => (
+                    <div key={index} className="relative group">
                       <img
-                        key={index}
                         src={img}
                         alt={`Preview ${index + 1}`}
                         className="w-full h-24 object-cover rounded-lg border border-gray-200"
                       />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Review & Submit */}
-        {step === 4 && (
-          <div className="space-y-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Check size={32} className="text-green-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-800">समीक्षा करें</h2>
-              <p className="text-gray-600">Review & Submit</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-gray-600">फसल:</span>
-                <span className="font-medium">{formData.name}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-gray-600">मात्रा:</span>
-                <span className="font-medium">{formData.quantity} {formData.unit}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-gray-600">कीमत:</span>
-                <span className="font-medium text-green-600">₹{formData.basePrice}/{formData.unit}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-gray-600">स्थान:</span>
-                <span className="font-medium">{formData.location}</span>
-              </div>
-              {formData.variety && (
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600">किस्म:</span>
-                  <span className="font-medium">{formData.variety}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              )}
-            </div>
-
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h4 className="font-medium text-green-800 mb-2">✅ सब कुछ तैयार है!</h4>
-              <p className="text-sm text-green-700">
-                आपकी फसल सूची में जोड़ दी जाएगी और व्यापारी इसे देख सकेंगे।
-              </p>
-            </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex space-x-4 pt-4">
-          {step > 1 && (
+        {/* Location Auto-detect */}
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            स्थान / Location *
+          </label>
+          <div className="flex space-x-3">
+            <input
+              type="text"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              placeholder="गांव, तहसील, जिला"
+              className="flex-1 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              required
+            />
             <button
-              onClick={handlePrevious}
-              className="flex-1 py-4 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-            >
-              पिछला / Previous
-            </button>
-          )}
-          
-          {step < 4 ? (
-            <button
-              onClick={handleNext}
-              disabled={!isStepValid()}
-              className={`flex-1 py-4 rounded-xl font-medium transition-colors ${
-                isStepValid()
-                  ? 'bg-green-600 text-white hover:bg-green-700'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              type="button"
+              onClick={detectLocation}
+              disabled={isDetectingLocation}
+              className={`px-6 py-4 rounded-lg font-medium transition-colors ${
+                isDetectingLocation
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-green-600 text-white hover:bg-green-700'
               }`}
             >
-              अगला / Next
+              {isDetectingLocation ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">खोज रहे हैं...</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <MapPin size={20} />
+                  <span className="text-sm">स्थान खोजें</span>
+                </div>
+              )}
             </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              className="flex-1 py-4 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors"
-            >
-              सूची में जोड़ें / Add to Listing
-            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            स्वचालित स्थान पहचान के लिए "स्थान खोजें" बटन दबाएं
+          </p>
+        </div>
+
+        {/* Harvest Date (Optional) */}
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            कटाई की तारीख / Harvest Date (Optional)
+          </label>
+          <div className="relative">
+            <Calendar size={20} className="absolute left-3 top-4 text-gray-400" />
+            <input
+              type="date"
+              value={formData.harvestDate}
+              onChange={(e) => setFormData({ ...formData, harvestDate: e.target.value })}
+              className="w-full pl-10 pr-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        {/* Description (Optional) */}
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            विवरण / Description (Optional)
+          </label>
+          <textarea
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="फसल की गुणवत्ता, विशेषताएं, भंडारण की स्थिति आदि के बारे में बताएं..."
+            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent h-24 resize-none"
+          />
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+            <p className="text-red-800 text-sm font-medium">{error}</p>
+          </div>
+        )}
+
+        {/* Submit Button */}
+        <div className="sticky bottom-4 bg-white p-4 rounded-xl shadow-lg border border-gray-100">
+          <button
+            type="submit"
+            disabled={!isFormValid() || isSubmitting}
+            className={`w-full py-4 rounded-xl text-lg font-semibold transition-colors ${
+              isFormValid() && !isSubmitting
+                ? 'bg-green-600 text-white hover:bg-green-700 shadow-lg'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>जोड़ा जा रहा है... / Adding...</span>
+              </div>
+            ) : isFormValid() ? (
+              <div className="flex items-center justify-center space-x-2">
+                <Check size={20} />
+                <span>फसल सूची में जोड़ें / Add to Listings</span>
+              </div>
+            ) : (
+              'कृपया सभी आवश्यक फ़ील्ड भरें'
+            )}
+          </button>
+
+          {!isFormValid() && !isSubmitting && (
+            <p className="text-center text-sm text-gray-500 mt-2">
+              * चिह्नित फ़ील्ड आवश्यक हैं
+            </p>
           )}
         </div>
-      </div>
+      </form>
     </div>
   );
 };

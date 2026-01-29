@@ -55,13 +55,21 @@ function App() {
   }
   const handleAddProduce = (produceData: any) => {
     const newProduce: Produce = {
-      ...produceData,
-      id: Date.now().toString(),
-      farmerId: currentUser.id,
-      currentPrice: produceData.basePrice,
+      id: produceData.id,
+      farmerId: produceData.farmer_id,
+      name: produceData.name,
+      variety: produceData.variety || '',
+      quantity: produceData.quantity,
+      unit: produceData.unit,
+      basePrice: produceData.base_price,
+      currentPrice: produceData.current_price,
       images: produceData.images.length > 0 ? produceData.images : [
         'https://images.pexels.com/photos/1656663/pexels-photo-1656663.jpeg'
       ],
+      description: produceData.description || '',
+      location: produceData.location,
+      harvestDate: produceData.harvest_date || '',
+      status: produceData.status as 'active' | 'bidding' | 'sold' | 'expired',
       bids: []
     };
     setProduces([...produces, newProduce]);
@@ -185,6 +193,7 @@ function App() {
           <EnhancedAddProduce
             onSubmit={handleAddProduce}
             onBack={() => setActiveTab('dashboard')}
+            farmerId={currentUser.id}
           />
         );
       
