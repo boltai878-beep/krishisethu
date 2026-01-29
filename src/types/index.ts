@@ -45,6 +45,20 @@ export interface Transaction {
   quantity: number;
   status: 'pending' | 'confirmed' | 'in_transit' | 'delivered' | 'completed';
   timeline: TransactionStep[];
+  paymentMethod?: 'bank_transfer' | 'upi' | 'digital_wallet';
+  paymentStatus?: 'pending' | 'processing' | 'confirmed' | 'completed';
+  dealConfirmedAt?: string;
+  produceCollectedAt?: string;
+  paymentInitiatedAt?: string;
+  paymentCompletedAt?: string;
+  deliveryDetails?: {
+    vehicleNumber?: string;
+    driverName?: string;
+    driverPhone?: string;
+    pickupLocation?: string;
+    deliveryLocation?: string;
+    estimatedDelivery?: string;
+  };
 }
 
 export interface TransactionStep {

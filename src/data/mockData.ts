@@ -185,6 +185,19 @@ export const mockTransactions: Transaction[] = [
     amount: 115000,
     quantity: 50,
     status: 'confirmed',
+    paymentMethod: 'bank_transfer',
+    paymentStatus: 'confirmed',
+    dealConfirmedAt: '2024-01-15T10:30:00Z',
+    produceCollectedAt: '2024-01-15T14:00:00Z',
+    paymentInitiatedAt: '2024-01-15T14:30:00Z',
+    deliveryDetails: {
+      vehicleNumber: 'MH 12 AB 1234',
+      driverName: 'Ramesh Kumar',
+      driverPhone: '+91 98765 43210',
+      pickupLocation: 'Khadakwasla, Pune, Maharashtra',
+      deliveryLocation: 'APMC Market, Pune',
+      estimatedDelivery: '2024-01-15T18:00:00Z'
+    },
     timeline: [
       {
         id: 't1',
