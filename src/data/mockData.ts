@@ -187,7 +187,6 @@ export const mockTransactions: Transaction[] = [
     amount: 115000,
     quantity: 50,
     status: 'payment_initiated',
-    status: 'confirmed',
     paymentMethod: 'bank_transfer',
     paymentStatus: 'confirmed',
     dealConfirmedAt: '2024-01-15T10:30:00Z',
