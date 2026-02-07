@@ -5,18 +5,15 @@ import {
   Clock, 
   CheckCircle, 
   Bell,
-  Eye,
   Star,
   MapPin,
   CreditCard,
-  Calendar,
-  BarChart3,
   ShoppingCart,
   Wallet,
-  FileText,
-  Phone
 } from 'lucide-react';
 import { Produce, Transaction } from '../../types';
+import LazyImage from '../UI/LazyImage';
+import LoadingSpinner from '../UI/LoadingSpinner';
 
 interface TraderDashboardProps {
   availableProduce: Produce[];
@@ -372,10 +369,10 @@ const TraderDashboard: React.FC<TraderDashboardProps> = ({
         <div className="p-4 space-y-3">
           {availableProduce.slice(0, 3).map((produce) => (
             <div key={produce.id} className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
-              <img 
+              <LazyImage
                 src={produce.images[0] || "https://images.pexels.com/photos/1656663/pexels-photo-1656663.jpeg"} 
                 alt={produce.name}
-                className="w-14 h-14 rounded-lg object-cover"
+                className="w-14 h-14 rounded-lg"
               />
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
