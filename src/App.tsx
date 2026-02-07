@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ErrorBoundary from './components/ErrorBoundary';
 import { LanguageProvider } from './contexts/LanguageContext';
 import SplashScreen from './components/Onboarding/SplashScreen';
 import LanguageSelection from './components/Onboarding/LanguageSelection';
@@ -289,39 +290,41 @@ function App() {
   };
 
   return (
-    <LanguageProvider>
-      {appState === 'language' && (
-        <LanguageSelection onContinue={handleLanguageContinue} />
-      )}
+    <ErrorBoundary>
+      <LanguageProvider>
+        {appState === 'language' && (
+          <LanguageSelection onContinue={handleLanguageContinue} />
+        )}
 
-      {appState === 'auth' && <LoginRegistration onLogin={handleLogin} />}
+        {appState === 'auth' && <LoginRegistration onLogin={handleLogin} />}
 
-      {appState === 'main' && currentUser && (
-        <div className="min-h-screen bg-gray-50">
-          {!chatUser && !showBidding && !showTransaction && (
-            <Header 
-              userName={currentUser.name}
-              location={currentUser.location}
-              unreadCount={3}
-            />
-          )}
-          
-          <main className={`${!chatUser && !showBidding && !showTransaction ? 'pt-4 pb-20' : 'pb-20 h-screen'}`}>
-            {renderContent()}
-          </main>
-          
-          {!chatUser && !showBidding && !showTransaction && (
-            <Navigation
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              userType={currentUser.type}
-            />
-          )}
-        </div>
-      )}
+        {appState === 'main' && currentUser && (
+          <div className="min-h-screen bg-gray-50">
+            {!chatUser && !showBidding && !showTransaction && (
+              <Header 
+                userName={currentUser.name}
+                location={currentUser.location}
+                unreadCount={3}
+              />
+            )}
+            
+            <main className={`${!chatUser && !showBidding && !showTransaction ? 'pt-4 pb-20' : 'pb-20 h-screen'}`}>
+              {renderContent()}
+            </main>
+            
+            {!chatUser && !showBidding && !showTransaction && (
+              <Navigation
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                userType={currentUser.type}
+              />
+            )}
+          </div>
+        )}
 
-      {!currentUser && appState === 'main' && <div>Loading...</div>}
-    </LanguageProvider>
+        {!currentUser && appState === 'main' && <div>Loading...</div>}
+      </LanguageProvider>
+    </ErrorBoundary>
   );
 }
 

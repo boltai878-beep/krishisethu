@@ -1,18 +1,9 @@
 import React from 'react';
-import { 
-  TrendingUp, 
-  Package, 
-  IndianRupee as Rupee, 
-  Clock, 
-  ArrowUp, 
-  ArrowDown, 
-  Plus,
-  Eye,
-  Gift,
-  Bell,
-  Users
-} from 'lucide-react';
+import { ArrowUp, ArrowDown, Clock } from 'lucide-react';
 import { Produce, MarketPrice, Transaction } from '../../types';
+import DashboardStats from './Dashboard/DashboardStats';
+import QuickActions from './Dashboard/QuickActions';
+import LazyImage from '../UI/LazyImage';
 
 interface EnhancedDashboardProps {
   produces: Produce[];
@@ -34,7 +25,6 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
   onViewTraders
 }) => {
   const activeProduces = produces.filter(p => p.status === 'active');
-  const totalBids = produces.reduce((sum, p) => sum + p.bids.length, 0);
   const pendingPayments = transactions.filter(t => t.status === 'pending').length;
 
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
@@ -54,113 +44,15 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
   return (
     <div className="p-4 space-y-6 pb-24">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold mb-1">Welcome Farmer!</h2>
-            <p className="text-green-100 text-sm">Welcome Farmer!</p>
-            <p className="text-green-200 text-xs mt-1">Have a great day!</p>
-          </div>
-          <div className="relative">
-            <Bell size={24} />
-            {(totalBids > 0 || pendingPayments > 0) && (
-              <div className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-xs font-bold">{totalBids + pendingPayments}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Stats Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-xl shadow-md border border-green-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-2xl font-bold text-green-600">{activeProduces.length}</p>
-              <p className="text-sm text-gray-600 font-medium">Active Products</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <Package className="text-green-600" size={24} />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-md border border-orange-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-2xl font-bold text-orange-600">{totalBids}</p>
-              <p className="text-sm text-gray-600 font-medium">New Bids</p>
-            </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-              <TrendingUp className="text-orange-600" size={24} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <DashboardStats produces={produces} transactions={transactions} />
 
       {/* Quick Actions */}
-      <div className="space-y-3">
-        <h3 className="text-lg font-semibold text-gray-800">Quick Actions</h3>
-        
-        <div className="grid grid-cols-1 gap-3">
-          <button
-            onClick={onAddProduce}
-            className="bg-green-600 text-white p-4 rounded-xl shadow-lg hover:bg-green-700 transition-colors"
-          >
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                <Plus size={24} />
-              </div>
-              <div className="text-left flex-1">
-                <p className="font-semibold text-lg">Sell Produce</p>
-                <p className="text-green-100 text-sm">Add Produce to Sell</p>
-              </div>
-            </div>
-          </button>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={onViewPrices}
-              className="bg-white border border-gray-200 p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow"
-            >
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Eye size={24} className="text-blue-600" />
-                </div>
-                <p className="font-semibold text-gray-800">Market Prices</p>
-                <p className="text-xs text-gray-500">View Current Rates</p>
-              </div>
-            </button>
-
-            <button
-              onClick={onViewSchemes}
-              className="bg-white border border-gray-200 p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow"
-            >
-              <div className="text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Gift size={24} className="text-purple-600" />
-                </div>
-                <p className="font-semibold text-gray-800">Schemes</p>
-                <p className="text-xs text-gray-500">Schemes</p>
-              </div>
-            </button>
-
-            <button
-              onClick={onViewTraders}
-              className="bg-white border border-gray-200 p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow"
-            >
-              <div className="text-center">
-                <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Users size={24} className="text-indigo-600" />
-                </div>
-                <p className="font-semibold text-gray-800">व्यापारी</p>
-                <p className="text-xs text-gray-500">Traders</p>
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
+      <QuickActions
+        onAddProduce={onAddProduce}
+        onViewPrices={onViewPrices}
+        onViewSchemes={onViewSchemes}
+        onViewTraders={onViewTraders}
+      />
 
       {/* Current Market Prices */}
       <div className="bg-white rounded-xl shadow-md border border-gray-100">
@@ -225,10 +117,10 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
             <div className="space-y-3">
               {activeProduces.slice(0, 3).map((produce) => (
                 <div key={produce.id} className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg border border-gray-100">
-                  <img 
+                  <LazyImage
                     src={produce.images[0] || "https://images.pexels.com/photos/1656663/pexels-photo-1656663.jpeg"} 
                     alt={produce.name}
-                    className="w-12 h-12 rounded-lg object-cover"
+                    className="w-12 h-12 rounded-lg"
                   />
                   <div className="flex-1">
                     <p className="font-medium text-gray-800">{produce.name}</p>
