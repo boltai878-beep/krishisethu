@@ -10,6 +10,11 @@ import {
   CreditCard,
   ShoppingCart,
   Wallet,
+  BarChart3,
+  FileText,
+  Phone,
+  Calendar,
+  Eye
 } from 'lucide-react';
 import { Produce, Transaction } from '../../types';
 import LazyImage from '../UI/LazyImage';

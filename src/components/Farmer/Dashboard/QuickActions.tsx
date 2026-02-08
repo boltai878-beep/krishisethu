@@ -16,7 +16,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
 }) => {
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-semibold text-gray-800">Quick Actions</h3>
+      <h3 className="text-lg font-semibold text-gray-800">त्वरित कार्य</h3>
       
       <div className="grid grid-cols-1 gap-3">
         <button
@@ -28,8 +28,8 @@ const QuickActions: React.FC<QuickActionsProps> = ({
               <Plus size={24} />
             </div>
             <div className="text-left flex-1">
-              <p className="font-semibold text-lg">Sell Produce</p>
-              <p className="text-green-100 text-sm">Add Produce to Sell</p>
+              <p className="font-semibold text-lg">फसल बेचें</p>
+              <p className="text-green-100 text-sm">बेचने के लिए फसल जोड़ें</p>
             </div>
           </div>
         </button>
@@ -43,8 +43,8 @@ const QuickActions: React.FC<QuickActionsProps> = ({
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
                 <Eye size={24} className="text-blue-600" />
               </div>
-              <p className="font-semibold text-gray-800">Market Prices</p>
-              <p className="text-xs text-gray-500">View Current Rates</p>
+              <p className="font-semibold text-gray-800">मंडी भाव</p>
+              <p className="text-xs text-gray-500">वर्तमान दरें देखें</p>
             </div>
           </button>
 
@@ -56,8 +56,8 @@ const QuickActions: React.FC<QuickActionsProps> = ({
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
                 <Gift size={24} className="text-purple-600" />
               </div>
-              <p className="font-semibold text-gray-800">Schemes</p>
-              <p className="text-xs text-gray-500">Schemes</p>
+              <p className="font-semibold text-gray-800">योजनाएं</p>
+              <p className="text-xs text-gray-500">सरकारी योजनाएं</p>
             </div>
           </button>
 
@@ -70,7 +70,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
                 <Users size={24} className="text-indigo-600" />
               </div>
               <p className="font-semibold text-gray-800">व्यापारी</p>
-              <p className="text-xs text-gray-500">Traders</p>
+              <p className="text-xs text-gray-500">सक्रिय व्यापारी देखें</p>
             </div>
           </button>
         </div>

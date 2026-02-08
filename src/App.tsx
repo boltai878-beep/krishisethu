@@ -15,6 +15,7 @@ import EnhancedChatInterface from './components/Chat/EnhancedChatInterface';
 import TransactionTracking from './components/Transaction/TransactionTracking';
 import GovernmentSchemes from './components/Government/GovernmentSchemes';
 import TraderListingsForFarmers from './components/Trader/TraderListingsForFarmers';
+import TraderDashboard from './components/Trader/TraderDashboard';
 import { 
   mockUsers, 
   mockProduce, 
@@ -54,6 +55,15 @@ function App() {
   if (appState === 'splash') {
     return <SplashScreen onComplete={handleSplashComplete} />;
   }
+
+  if (appState === 'language') {
+    return <LanguageSelection onContinue={handleLanguageContinue} />;
+  }
+
+  if (appState === 'auth') {
+    return <LoginRegistration onLogin={handleLogin} />;
+  }
+
   const handleAddProduce = (produceData: any) => {
     const newProduce: Produce = {
       id: produceData.id,
@@ -127,7 +137,7 @@ function App() {
     if (chatUser) {
       return (
         <EnhancedChatInterface
-          currentUser={currentUser}
+          currentUser={currentUser!}
           otherUser={chatUser}
           messages={mockMessages}
           onSendMessage={handleSendMessage}
@@ -141,7 +151,7 @@ function App() {
         <EnhancedBiddingSystem
           produce={selectedProduce}
           onPlaceBid={handlePlaceBid}
-          currentUserId={currentUser.type === 'trader' ? currentUser.id : '2'}
+          currentUserId={currentUser?.type === 'trader' ? currentUser.id : '2'}
           onBack={() => setShowBidding(false)}
           onContactFarmer={() => setChatUser(mockUsers.find(u => u.id === selectedProduce.farmerId) || mockUsers[0])}
         />
@@ -150,9 +160,9 @@ function App() {
 
     switch (activeTab) {
       case 'dashboard':
-        return currentUser.type === 'farmer' ? (
+        return currentUser?.type === 'farmer' ? (
           <EnhancedDashboard
-            produces={produces.filter(p => p.farmerId === currentUser.id)}
+            produces={produces.filter(p => p.farmerId === currentUser?.id)}
             marketPrices={mockMarketPrices}
             transactions={mockTransactions}
             onAddProduce={() => setActiveTab('add')}
@@ -186,7 +196,7 @@ function App() {
           <EnhancedAddProduce
             onSubmit={handleAddProduce}
             onBack={() => setActiveTab('dashboard')}
-            farmerId={currentUser.id}
+            farmerId={currentUser?.id || ''}
           />
         );
       
@@ -197,7 +207,7 @@ function App() {
               <h2 className="text-xl font-bold text-gray-800">चैट</h2>
               <p className="text-sm text-gray-600">Messages</p>
             </div>
-            {mockUsers.filter(u => u.id !== currentUser.id).map((user) => (
+            {mockUsers.filter(u => u.id !== currentUser?.id).map((user) => (
               <div 
                 key={user.id}
                 onClick={() => setChatUser(user)}
@@ -230,7 +240,7 @@ function App() {
               <p className="text-sm text-gray-600">Profile</p>
             </div>
             
-            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+            {currentUser && <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
                   <span className="text-white text-2xl font-bold">{currentUser.name.charAt(0)}</span>
@@ -268,7 +278,7 @@ function App() {
                   सरकारी योजनाएं देखें
                 </button>
               </div>
-            </div>
+            </div>}
           </div>
         );
 
@@ -279,7 +289,7 @@ function App() {
         return (
           <TraderListingsForFarmers
             traders={mockUsers.filter(u => u.type === 'trader')}
-            myProduce={produces.filter(p => p.farmerId === currentUser.id)}
+            myProduce={produces.filter(p => p.farmerId === currentUser?.id)}
             onContactTrader={(trader) => setChatUser(trader)}
           />
         );
@@ -289,40 +299,34 @@ function App() {
     }
   };
 
+  if (!currentUser) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <ErrorBoundary>
       <LanguageProvider>
-        {appState === 'language' && (
-          <LanguageSelection onContinue={handleLanguageContinue} />
-        )}
-
-        {appState === 'auth' && <LoginRegistration onLogin={handleLogin} />}
-
-        {appState === 'main' && currentUser && (
-          <div className="min-h-screen bg-gray-50">
-            {!chatUser && !showBidding && !showTransaction && (
-              <Header 
-                userName={currentUser.name}
-                location={currentUser.location}
-                unreadCount={3}
-              />
-            )}
-            
-            <main className={`${!chatUser && !showBidding && !showTransaction ? 'pt-4 pb-20' : 'pb-20 h-screen'}`}>
-              {renderContent()}
-            </main>
-            
-            {!chatUser && !showBidding && !showTransaction && (
-              <Navigation
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                userType={currentUser.type}
-              />
-            )}
-          </div>
-        )}
-
-        {!currentUser && appState === 'main' && <div>Loading...</div>}
+        <div className="min-h-screen bg-gray-50">
+          {!chatUser && !showBidding && !showTransaction && (
+            <Header 
+              userName={currentUser.name}
+              location={currentUser.location}
+              unreadCount={3}
+            />
+          )}
+          
+          <main className={`${!chatUser && !showBidding && !showTransaction ? 'pt-4 pb-20' : 'pb-20 h-screen'}`}>
+            {renderContent()}
+          </main>
+          
+          {!chatUser && !showBidding && !showTransaction && (
+            <Navigation
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              userType={currentUser.type}
+            />
+          )}
+        </div>
       </LanguageProvider>
     </ErrorBoundary>
   );
